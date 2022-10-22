@@ -6,7 +6,9 @@ const {checkLoginForm} = require("../controllers/login.controller")
 
 
 
+
 authRouter.post("/signup", getSigninForm)
+
 
 authRouter.post("/login",checkLoginForm )
 

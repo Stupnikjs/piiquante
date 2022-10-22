@@ -1,3 +1,4 @@
+
 const argon2 = require("argon2")
 const userSchema = require("../models/user.model")
 
@@ -21,6 +22,7 @@ async function getSigninForm(req, res){
         password : hashedPassword
     })
    await user.save()
+
    res.send("user created")
 
  } catch(err){
