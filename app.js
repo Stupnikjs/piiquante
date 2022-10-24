@@ -1,6 +1,6 @@
 const express = require("express"); 
 const app = express(); 
-
+const path = require('path');
 const authRouter = require("./routes/auth.route")
 const sauceRouter = require("./routes/sauce.route")
 
@@ -21,9 +21,7 @@ app.use(express.urlencoded({extended: true}));
 app.use(express.json());
 
 
-app.use(express.static("public"))
-app.use('/uploads', express.static('uploads'));
-
+app.use('/images', express.static(path.join(__dirname, 'images')));
 
 app.use("/api/auth", authRouter)
 app.use("/api/sauces", sauceRouter)

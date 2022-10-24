@@ -1,26 +1,20 @@
 const sauceSchema = require("../models/sauce.model")
-const multer = require("multer")
 const fs = require('fs');
 const { default: mongoose } = require("mongoose");
 
 
 // SET STORAGE
 
-var storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-      cb(null, 'public/uploads')
-    },
-    filename: function (req, file, cb) {
-      cb(null, file.originalname) // + '-' + new Date().getDay() +"-"+ new Date().getMonth() )
-    }
-  })
-   
 
-var upload = multer({ storage: storage })
+async function getSauce(req, res){
 
+ try {
+  const sauce = await sauceSchema.findOne({ _id : req.params.id})
+  res.status(200).json(sauce)
+} catch (err){
+ res.status(404).json({error: err})
+}
 
-function getSauce(req, res){
-console.log("sauce")
 }
 
 async function getAllSauce(req, res){
@@ -32,14 +26,8 @@ res.send(allSauce)
 
 function postSauce(req, res){
    
-      const reqsauce = req.body.sauce 
-      const imgUrlBackSlash = req.file.path
-      const slash = /\\/
-      let imgUrl = imgUrlBackSlash.replace(slash, "/")
-      imgUrl = imgUrl.replace(slash, "/")
-      console.log(imgUrl)
-  
-    
+      const reqsauce = JSON.parse(req.body.sauce) 
+      
       const sauceItem = new sauceSchema({
       name : reqsauce.name, 
       manufacturer: reqsauce.manufacturer, 
@@ -47,7 +35,7 @@ function postSauce(req, res){
       mainPepper: reqsauce.mainPepper, 
       heat: reqsauce.heat, 
       userId: reqsauce.userId, 
-      imageUrl: "http://localhost:3000/" + imgUrl, 
+      imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
       likes: 0, 
       dislikes: 0, 
       usersLiked: [], 
@@ -56,7 +44,10 @@ function postSauce(req, res){
       sauceItem.save()
     }
  
+function putSauce(req, res){
+  if (req.method === "PUT") console.log(req.params.id)
+
+}
 
 
-
-module.exports = {getSauce, getAllSauce, postSauce, upload}
+module.exports = {getSauce, getAllSauce, postSauce, putSauce}
