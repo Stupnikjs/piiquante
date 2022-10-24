@@ -19,7 +19,7 @@ async function getSauce(req, res){
 
 async function getAllSauce(req, res){
 const allSauce = await sauceSchema.find({})
-res.send(allSauce)
+res.status(200).send(allSauce)
 }
 
 
