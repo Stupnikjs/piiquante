@@ -44,10 +44,52 @@ function postSauce(req, res){
       sauceItem.save()
     }
  
-function putSauce(req, res){
-  if (req.method === "PUT") console.log(req.params.id)
+async function putSauce(req, res){
+  if (req.method === "PUT") {
+  
+  let sauceItem = {
+     ...req.body,    
+  }
+  
+  if (req.file.filename) sauceItem.imageUrl = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+  await sauceSchema.findOneAndUpdate({_id:req.params.id}, sauceItem ) 
+  res.json({ message : "sauce mise à jour" })
+}
+else {
+ res.status(404)
+}
+
+}
+
+async function deleteSauce(req, res){
+  if (req.method === "DELETE"){
+    try{
+      await sauceSchema.findByIdAndRemove({_id: req.params.id})
+      res.status(200).json({message: "sauce supprimée "})
+    }catch(err){
+      res.status(404).json({error: err})
+    }
+    
+    
+  }
+}
+
+async function postLike(req, res){
+  
+  const sauceId = req.params.id 
+  let like = req.body.like 
+  if (like === 1) {
+    await sauceSchema.findOneAndUpdate({ _id: sauceId} , 
+     { $inc:{likes : req.body.like ++ }}, { $push:{ usersLiked: req.body.userId }} ) 
+     res.status(200).json({message: "like pris en compte"}) 
+  }
+  
+
+
+
 
 }
 
 
-module.exports = {getSauce, getAllSauce, postSauce, putSauce}
+
+module.exports = {getSauce, getAllSauce, postSauce, putSauce, deleteSauce, postLike}

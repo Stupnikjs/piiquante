@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 
 const sauceRouter = express.Router()
 
-const {getSauce, getAllSauce, postSauce, putSauce} = require("../controllers/sauce.controller")
+const {getSauce, getAllSauce, postSauce, putSauce, deleteSauce, postLike} = require("../controllers/sauce.controller")
 const {upload} = require("../middlewares/multerConfig")
 
 // iat : date where the token was created (issued at)
@@ -19,13 +19,16 @@ const authorize = (req, res, next) => {
     }
   
 
-  
-
-sauceRouter.get("/:id", authorize, getSauce)
-sauceRouter.put("/:id", authorize, putSauce)
 sauceRouter.get("/", authorize, getAllSauce)
 
 sauceRouter.post("/", authorize,  upload.single("image"),  postSauce)
+
+sauceRouter.get("/:id", authorize, getSauce)
+sauceRouter.put("/:id", authorize,upload.single("image"), putSauce)
+sauceRouter.delete("/:id", deleteSauce)
+
+sauceRouter.post("/:id/like", postLike)
+
 
 
 
