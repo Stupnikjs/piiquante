@@ -3,7 +3,6 @@ const fs = require('fs');
 const { default: mongoose } = require("mongoose");
 
 
-// SET STORAGE
 
 
 async function getSauce(req, res){
@@ -78,17 +77,70 @@ async function postLike(req, res){
   
   const sauceId = req.params.id 
   let like = req.body.like 
-  if (like === 1) {
-    await sauceSchema.findOneAndUpdate({ _id: sauceId} , 
-     { $inc:{likes : req.body.like ++ }}, { $push:{ usersLiked: req.body.userId }} ) 
-     res.status(200).json({message: "like pris en compte"}) 
-  }
+  let userId = req.body.userId
+
+  const sauce = await sauceSchema.findOne({ _id: sauceId})
+  
+
+  if (like === 1 && !sauce.usersLiked.includes(userId)) {
+    try{
+      sauce.usersLiked.push(userId);
+      sauce.likes += 1; 
+      await sauceSchema.findOneAndUpdate({ _id: sauceId} , 
+        sauce) 
+        res.status(200).json({message: "like pris en compte"}) 
+     } catch(err){
+      res.status(404).json({error: err})
+     }
+    }
+    
+
+  if (like === -1 && !sauce.usersDisliked.includes(userId)) {
+      try{
+        sauce.usersDisliked.push(userId); 
+        sauce.dislikes += 1; 
+        await sauceSchema.findOneAndUpdate({ _id: sauceId} , 
+        sauce ) 
+        res.status(200).json({message: "dislike pris en compte"}) 
+      } catch(err){
+      res.status(404).json({error: err})
+      }
+    }
+  
+  if (like === 0 && sauce.usersLiked.includes(userId)) {
+      try{
+        sauce.likes -= 1; 
+        sauce.usersLiked.splice(sauce.usersLiked.indexOf(userId), 1) 
+        
+        await sauceSchema.findOneAndUpdate({ _id: sauceId}, sauce )
+        
+        res.status(200).json({message: "dislike ou like annulé"})
+      } catch(err){
+        res.status(404).json({error: err})
+      }
+      
+    }
+  
+  if ( like === 0 && sauce.usersDisliked.includes(userId)) {
+      try{
+      sauce.dislikes -= 1; 
+      sauce.usersDisliked.splice(sauce.usersDisliked.indexOf(userId), 1) 
+      
+      await sauceSchema.findOneAndUpdate({ _id: sauceId}, sauce)
+      
+      res.status(200).json({message: "dislike ou like annulé"})
+      }catch(err){
+      res.status(404).json({error: err})
+    }
+  } 
+ 
+}  
   
 
 
 
 
-}
+
 
 
 
